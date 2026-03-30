@@ -15,6 +15,7 @@ const modalImageEl = document.getElementById("modal-image");
 const modalTitleEl = document.getElementById("modal-title");
 const modalDateEl = document.getElementById("modal-date");
 const modalExplanationEl = document.getElementById("modal-explanation");
+let statusClearTimerId = null;
 
 function getTodayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -33,6 +34,11 @@ function formatShortDate(isoDate) {
 }
 
 function setStatus(message, isError = false, customColor = "") {
+  if (statusClearTimerId) {
+    clearTimeout(statusClearTimerId);
+    statusClearTimerId = null;
+  }
+
   statusEl.textContent = message;
   if (customColor) {
     statusEl.style.color = customColor;
@@ -40,6 +46,14 @@ function setStatus(message, isError = false, customColor = "") {
   }
 
   statusEl.style.color = isError ? "#f64137" : "#4f4f4f";
+}
+
+function clearStatusAfterDelay(delayMs = 1500) {
+  statusClearTimerId = setTimeout(() => {
+    statusEl.textContent = "";
+    statusEl.style.color = "#4f4f4f";
+    statusClearTimerId = null;
+  }, delayMs);
 }
 
 function getDefaultDateRange() {
@@ -211,6 +225,7 @@ function renderGallery(items) {
 
   galleryEl.appendChild(fragment);
   setStatus(`Loaded ${items.length} image${items.length === 1 ? "" : "s"}.`);
+  clearStatusAfterDelay(500);
 }
 
 async function searchAPODByDate(startDate, endDate) {
